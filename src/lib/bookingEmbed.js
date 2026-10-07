@@ -7,12 +7,12 @@
  * the masthead button clicks the trigger the embed built for itself. The dialog
  * is appended to <body>, so hosting the trigger off-screen does not hide it.
  *
- *   <script src="http://localhost:3000/embed.js?token=theory-website"
+ *   <script src="https://theory-web.vercel.app/embed.js?token=theory-website"
  *           data-mode="modal" async></script>
  *
  * Override the URL with VITE_BOOKING_EMBED_URL in .env.local - see .env.example.
  */
-const EMBED_SRC = 'http://localhost:3000/embed.js?token=theory-website';
+const EMBED_SRC = 'https://theory-web.vercel.app/embed.js?token=theory-website';
 
 const HOST_ATTR = 'data-booking-host';
 
