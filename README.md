@@ -50,38 +50,41 @@ states are already handled, and the failure copy falls back to the phone number.
 
 ## The Book now button
 
-The masthead "Book now" button loads the booking embed on first press and
-renders it in the #book-widget section, then scrolls to it. The embed is used
-exactly as the booking console hands it out:
+"Book now" loads the booking embed on first press and opens it as a modal over
+the page. Repeat presses reopen it without loading it again. If the widget
+cannot be reached the visitor is sent to the consult form, so the button is
+never dead.
 
-```html
-<script src="https://theory-web.vercel.app/embed.js"
-        data-token="theory-website" async></script>
+The embed has no public `open()`: in modal mode it inserts its own trigger
+button next to its `<script>` tag and opens the dialog when that is pressed.
+So the script is loaded into an off-screen host and the masthead button clicks
+the trigger the embed built. The dialog is appended to `<body>`, so hosting the
+trigger off-screen does not hide it.
+
+The URL lives in `src/lib/bookingEmbed.js`; `VITE_BOOKING_EMBED_URL` in
+`.env.local` overrides it (see `.env.example`).
+
+### The booking server has to allow this origin
+
+The widget renders inside an iframe, so the booking server must name the
+embedding site in its `frame-ancestors` CSP header. Otherwise the modal opens
+around an empty frame and the browser logs:
+
+```
+Framing 'http://localhost:3000/' violates the following Content Security Policy
+directive: "frame-ancestors 'self' https://inner-theory.netlify.app".
 ```
 
-With no `data-mode` on the tag the embed renders inline - it inserts its iframe
-after its own script tag - so the script is appended to a mount element inside
-that section. It loads at most once per page view, and falls back to the consult
-form if it cannot be reached.
+Every origin the site is served from needs listing - the match is exact, so
+`localhost` and `127.0.0.1` differ, as do apex and `www`:
 
-To point at a local booking server while developing, put the override in
-`.env.local` (see `.env.example`):
-
-```bash
-VITE_BOOKING_EMBED_URL=http://localhost:3000/embed.js
+```
+frame-ancestors 'self' http://localhost:5173 https://inner-theory.netlify.app
 ```
 
-Two things have to line up on the booking server before the widget renders from
-a deployed site:
-
-1. **The embed's own `origin`.** The build currently at theory-web.vercel.app
-   has `var origin = "http://localhost:3000"` compiled in, so it builds an
-   iframe pointing at the visitor's own machine. It needs to derive the origin
-   from the script's `src`.
-2. **`frame-ancestors`.** The booking page must name this site's origin in its
-   CSP header, or the browser refuses to frame it. The match is exact -
-   `innertheory.co` and `www.innertheory.co` are different origins, as are
-   `localhost` and `127.0.0.1` on the same port.
+For production the embed URL must also be https (an http script on an https
+page is blocked as mixed content), and the embed served there must derive its
+own `origin` from its script `src` rather than hardcoding localhost.
 
 ## Replace before launch
 

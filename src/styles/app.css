@@ -93,6 +93,19 @@
   padding: 0.6rem 1.1rem;
 }
 
+.mast__notice {
+  background: var(--ink);
+  color: var(--text-on-ink);
+  font-size: var(--step-small);
+  text-align: center;
+  padding: 0.7rem var(--gutter);
+}
+
+.mast__notice a {
+  color: var(--beam);
+  text-underline-offset: 3px;
+}
+
 .mast__actions {
   display: flex;
   align-items: center;
@@ -1279,48 +1292,4 @@
 
 .foot__meta a:hover {
   color: var(--beam);
-}
-
-
-/* --- Inline booking widget ---------------------------------------------- */
-
-.bookwidget {
-  background: var(--paper);
-  border-block: 1px solid var(--porcelain-deep);
-  padding-block: clamp(2.5rem, 5vw, 4rem);
-  scroll-margin-top: 5.5rem;
-}
-
-/* An author-level display beats the UA sheet's [hidden] rule, so restate it. */
-.bookwidget[hidden] {
-  display: none;
-}
-
-.bookwidget__label {
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.bookwidget__label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--mist);
-}
-
-/* The embed inserts its own iframe here and sets its height from the frame. */
-.bookwidget__mount {
-  border: 1px solid var(--porcelain-deep);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--porcelain);
-}
-
-.bookwidget__status {
-  margin-top: 1rem;
-  color: var(--text-muted);
-  font-size: var(--step-small);
 }
