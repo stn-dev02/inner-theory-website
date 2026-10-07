@@ -1,0 +1,375 @@
+/* ==========================================================================
+   Inner Theory - foundations
+   Tokens, reset, typography, and the layout primitives used by every section.
+   Section-level styling lives in app.css.
+   ========================================================================== */
+
+:root {
+  /* Palette. Drawn from clinical LED therapy rather than spa neutrals:
+     marine ink, cool porcelain, petrol, and a 415 nm violet used only for data. */
+  --ink: #111c21;
+  --ink-raised: #18272e;
+  --ink-line: #2a3c44;
+  --porcelain: #e8eceb;
+  --porcelain-deep: #dde3e2;
+  --paper: #fafbfb;
+  --petrol: #1e5661;
+  --petrol-deep: #16404a;
+  --beam: #ae9be8;
+  --beam-soft: rgba(174, 155, 232, 0.16);
+  --mist: #c3cdcb;
+  --text: #111c21;
+  --text-muted: #5d6b6c;
+  --text-on-ink: #e4eae9;
+  --text-on-ink-muted: #8ea0a3;
+
+  /* Type */
+  --display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --step-display-xl: clamp(2.6rem, 6.6vw, 5rem);
+  --step-display-l: clamp(1.95rem, 3.9vw, 3.1rem);
+  --step-display-m: clamp(1.4rem, 2.2vw, 1.85rem);
+  --step-body-l: clamp(1.0625rem, 1.15vw, 1.1875rem);
+  --step-body: 1.0225rem;
+  --step-small: 0.875rem;
+  --step-mono: 0.7rem;
+
+  /* Space + shape */
+  --shell: 78rem;
+  --spine: 9.5rem;
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --section-y: clamp(4.5rem, 9vw, 8.5rem);
+  --radius: 3px;
+  --radius-lg: 6px;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 480ms;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Clears the fixed masthead when jumping to an anchor. */
+  scroll-padding-top: 5.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--porcelain);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--step-body);
+  line-height: 1.6;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--petrol);
+  outline-offset: 3px;
+}
+
+.u-ink :focus-visible {
+  outline-color: var(--beam);
+}
+
+/* --------------------------------------------------------------------------
+   Typography roles
+   Fraunces carries the voice and is used only for headlines and the wordmark.
+   IBM Plex Mono is reserved for anything measured: depths, intervals, prices.
+   -------------------------------------------------------------------------- */
+
+.t-display-xl,
+.t-display-l,
+.t-display-m {
+  font-family: var(--display);
+  font-weight: 450;
+  font-variation-settings: 'SOFT' 0, 'WONK' 1;
+  letter-spacing: -0.021em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.t-display-xl {
+  font-size: var(--step-display-xl);
+  font-variation-settings: 'SOFT' 0, 'WONK' 1, 'opsz' 144;
+}
+
+.t-display-l {
+  font-size: var(--step-display-l);
+  line-height: 1.06;
+}
+
+.t-display-m {
+  font-size: var(--step-display-m);
+  line-height: 1.16;
+  letter-spacing: -0.012em;
+}
+
+.t-mono {
+  font-family: var(--mono);
+  font-size: var(--step-mono);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.t-num {
+  font-family: var(--mono);
+  font-weight: 450;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.t-lede {
+  font-size: var(--step-body-l);
+  line-height: 1.58;
+  color: var(--text-muted);
+  max-width: 48ch;
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Layout primitives
+   -------------------------------------------------------------------------- */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.band {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+/* The spine: a sticky mono label column running down the left of each section.
+   Collapses to a single row above the content on narrow screens. */
+.spine {
+  display: grid;
+  gap: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.spine__rail {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: var(--text-muted);
+}
+
+.spine__rail::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mist);
+}
+
+.spine__body {
+  min-width: 0;
+}
+
+@media (min-width: 60rem) {
+  .spine {
+    grid-template-columns: var(--spine) minmax(0, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
+  }
+
+  .spine__rail {
+    position: sticky;
+    top: 6.5rem;
+    align-self: start;
+    display: block;
+  }
+
+  .spine__rail::after {
+    display: block;
+    width: 1.75rem;
+    height: 1px;
+    margin-top: 0.9rem;
+    content: '';
+    flex: none;
+  }
+}
+
+/* Section headers share one structure so the rhythm never drifts. */
+.sechead {
+  display: grid;
+  gap: 1rem;
+  max-width: 58ch;
+}
+
+.sechead__hint {
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Shared controls
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: var(--radius);
+  font-size: var(--step-small);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease), transform 220ms var(--ease);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--solid {
+  background: var(--petrol);
+  color: #f4f8f7;
+  border: 1px solid var(--petrol);
+}
+
+.btn--solid:hover {
+  background: var(--petrol-deep);
+  border-color: var(--petrol-deep);
+}
+
+.btn--ghost {
+  border: 1px solid var(--mist);
+  color: var(--text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--petrol);
+  color: var(--petrol);
+}
+
+.btn__arrow {
+  transition: transform 220ms var(--ease);
+}
+
+.btn:hover .btn__arrow {
+  transform: translateX(3px);
+}
+
+/* Reveal-on-scroll. Elements start shifted and are released by an observer. */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 760ms var(--ease), transform 760ms var(--ease);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Set by the observer in App.jsx. An attribute, not a class, so a React
+   re-render that rewrites className cannot strip it. */
+.reveal[data-in] {
+  opacity: 1;
+  transform: none;
+}
+
+.u-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Hidden until tabbed to, then a real visible target. */
+.skip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 100;
+  transform: translate(-50%, -120%);
+  background: var(--petrol);
+  color: #f4f8f7;
+  font-size: var(--step-small);
+  text-decoration: none;
+  padding: 0.7rem 1.25rem;
+  border-radius: 0 0 var(--radius) var(--radius);
+  transition: transform 200ms var(--ease);
+}
+
+.skip:focus-visible {
+  transform: translate(-50%, 0);
+}
+
+/* Nothing below the fold has been revealed when a print starts. */
+@media print {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
