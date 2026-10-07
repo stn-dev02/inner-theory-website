@@ -3,8 +3,8 @@
  *
  * The embed is used exactly as the booking console hands it out:
  *
- *   <script src="https://theory-web.vercel.app/embed.js"
- *           data-token="theory-website" async></script>
+ *   <script src="http://localhost:3000/embed.js?token=theory-website"
+ *           async></script>
  *
  * With no data-mode on the tag the embed renders inline: it inserts its iframe
  * directly after its own <script> tag. So the script is appended to a visible
@@ -13,8 +13,7 @@
  * Override the URL for a local booking server with VITE_BOOKING_EMBED_URL in
  * .env.local - see .env.example.
  */
-const EMBED_SRC = 'https://theory-web.vercel.app/embed.js';
-const EMBED_TOKEN = 'theory-website';
+const EMBED_SRC = 'http://localhost:3000/embed.js?token=theory-website';
 
 function resolveEmbedSrc() {
   const configured = import.meta.env.VITE_BOOKING_EMBED_URL;
@@ -68,7 +67,6 @@ export function mountBookingWidget(container) {
     const script = document.createElement('script');
     script.src = src;
     script.async = true;
-    script.setAttribute('data-token', EMBED_TOKEN);
 
     script.addEventListener(
       'load',
