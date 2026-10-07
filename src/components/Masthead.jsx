@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { clinic, nav } from '../content/site.js';
 import { openBookingWidget } from '../lib/bookingEmbed.js';
 
-export default function Masthead() {
+export default function Masthead({ onOpenInline }) {
   const [isStuck, setIsStuck] = useState(false);
   const [active, setActive] = useState('');
   const [embed, setEmbed] = useState('idle'); // idle | loading | ready | error
@@ -79,6 +79,14 @@ export default function Masthead() {
           <a className="btn btn--ghost mast__cta mast__cta--second" href="#book">
             Book a consult
           </a>
+
+          <button
+            type="button"
+            className="btn btn--ghost mast__cta mast__cta--inline"
+            onClick={onOpenInline}
+          >
+            Book inline
+          </button>
 
           <button
             type="button"

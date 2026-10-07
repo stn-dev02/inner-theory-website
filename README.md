@@ -48,12 +48,24 @@ const FORM_ENDPOINT = 'https://formspree.io/f/xxxxxxx';
 The payload is `{ name, email, phone, concern, when, notes }`. Success and failure
 states are already handled, and the failure copy falls back to the phone number.
 
-## The Book now button
+## The booking buttons
 
 The masthead "Book now" button loads the external booking widget on first press
 and opens it in a modal. Repeat presses reopen it without loading it again. If
 the widget cannot be reached, the visitor is sent to the consult form on the
 page instead, so the button is never dead.
+
+The same embed supports a second shape, and the masthead offers both:
+
+- **Book now** loads it in `modal` mode and opens it over the page. The embed
+  has no public `open()`, so the script is loaded into an off-screen host and
+  the button clicks the trigger the embed builds for itself.
+- **Book inline** loads it in `inline` mode into the `#book-inline` section,
+  where the embed inserts its iframe into the page's own layout. Shown from
+  64rem up - measured, since three CTAs plus the nav are what fits at 1024px.
+
+Each mode loads at most once per page view, and both fall back to the consult
+form if the widget cannot be reached.
 
 Set the embed URL per environment - it is deliberately not hardcoded:
 

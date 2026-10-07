@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Masthead from './components/Masthead.jsx';
 import Hero from './components/Hero.jsx';
 import DepthMap from './components/DepthMap.jsx';
@@ -6,6 +6,7 @@ import Schedule from './components/Schedule.jsx';
 import Clinicians from './components/Clinicians.jsx';
 import Costs from './components/Costs.jsx';
 import Questions from './components/Questions.jsx';
+import BookingInline from './components/BookingInline.jsx';
 import Book from './components/Book.jsx';
 import Footer from './components/Footer.jsx';
 
@@ -49,12 +50,15 @@ function useReveal() {
 export default function App() {
   useReveal();
 
+  // Lifted so the masthead button can reveal the inline widget further down the page.
+  const [inlineOpen, setInlineOpen] = useState(false);
+
   return (
     <>
       <a className="skip" href="#treatments">
         Skip to treatments
       </a>
-      <Masthead />
+      <Masthead onOpenInline={() => setInlineOpen(true)} />
       <main>
         <Hero />
         <DepthMap />
@@ -62,6 +66,7 @@ export default function App() {
         <Clinicians />
         <Costs />
         <Questions />
+        <BookingInline open={inlineOpen} />
         <Book />
       </main>
       <Footer />

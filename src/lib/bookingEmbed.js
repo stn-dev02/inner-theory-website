@@ -1,15 +1,17 @@
 /**
- * Booking widget, opened from the masthead button.
+ * Booking widget. The embed supports two shapes, and the masthead offers both:
  *
- * The embed ships its own trigger: in modal mode it inserts a button next to
- * its own <script> tag and opens the dialog when that button is pressed. There
- * is no public open() to call. So the script is loaded into an off-screen host,
- * and our masthead button clicks the one the embed made. The dialog itself is
- * appended to <body>, so hosting the trigger off-screen does not hide it.
+ *   modal  - the embed inserts its own trigger button next to its <script> tag
+ *            and opens a dialog when that is pressed. There is no public
+ *            open(), so the script is loaded into an off-screen host and our
+ *            button clicks the trigger the embed made. The dialog is appended
+ *            to <body>, so hosting the trigger off-screen does not hide it.
+ *   inline  - the embed inserts an iframe directly after its <script> tag. The
+ *            script is appended to a visible mount element, so the iframe lands
+ *            inside it, in the page's own layout.
  *
  * The URL is configuration, not code. Set VITE_BOOKING_EMBED_URL per
- * environment - see .env.example. Two things have to line up for it to work
- * off localhost:
+ * environment - see .env.example. Two things have to line up off localhost:
  *
  *   1. The URL must be https. A browser blocks an http:// script on an
  *      https:// page as mixed content, silently.
@@ -26,7 +28,7 @@ function resolveEmbedSrc() {
 
   // The local booking server is a reasonable default while developing. In a
   // build with nothing configured it is not: a visitor's own machine is not
-  // running it, so the button degrades to the consult form instead.
+  // running it, so the buttons degrade to the consult form instead.
   return import.meta.env.DEV ? DEV_FALLBACK : '';
 }
 
@@ -44,48 +46,40 @@ function configurationProblem() {
   return null;
 }
 
-/** Resolves with the embed's own trigger button. Cached, so one load only. */
-let pending = null;
-
-function injectEmbed() {
+/**
+ * Appends the embed script to `parent` in the given mode and resolves once the
+ * element it builds has appeared. Each mode is loaded at most once per page.
+ */
+function loadEmbed(parent, mode) {
   return new Promise((resolve, reject) => {
     const problem = configurationProblem();
     if (problem) {
-      // Surfaced in the console too: in production this is the only clue a
-      // developer gets that the button fell back rather than opened.
+      // Logged as well as thrown: in production this is the only clue a
+      // developer gets that a button fell back rather than opened.
       console.error(`[booking] ${problem}`);
-      pending = null;
       reject(new Error(problem));
       return;
     }
 
-    const host = document.createElement('div');
-    host.setAttribute(HOST_ATTR, '');
-    // Out of view and out of the a11y tree: the masthead button is the real control.
-    host.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;clip-path:inset(50%)';
-    host.setAttribute('aria-hidden', 'true');
-
     const script = document.createElement('script');
     script.src = EMBED_SRC;
     script.async = true;
-    script.setAttribute('data-mode', 'modal');
-    script.setAttribute('data-label', 'Book now');
+    script.setAttribute('data-mode', mode);
+    if (mode === 'modal') script.setAttribute('data-label', 'Book now');
 
     const fail = (message) => {
       console.error(`[booking] ${message}`);
-      host.remove();
-      pending = null;
       reject(new Error(message));
     };
 
     script.addEventListener(
       'load',
       () => {
-        // The embed runs synchronously and inserts its button as the script's
-        // next sibling. No button means it bailed out - a rejected token, say.
-        const trigger = host.querySelector('button');
-        if (trigger) resolve(trigger);
-        else fail('The booking widget loaded but did not start. Check the embed token.');
+        // The embed runs synchronously and inserts its element as the script's
+        // next sibling. Nothing there means it bailed out - a rejected token, say.
+        const made = parent.querySelector(mode === 'modal' ? 'button' : 'iframe');
+        if (made) resolve(made);
+        else fail(`The booking widget loaded but did not start in ${mode} mode. Check the embed token.`);
       },
       { once: true }
     );
@@ -99,8 +93,26 @@ function injectEmbed() {
       { once: true }
     );
 
-    host.appendChild(script);
-    document.body.appendChild(host);
+    parent.appendChild(script);
+  });
+}
+
+/* ---- modal ------------------------------------------------------------- */
+
+let modalTrigger = null;
+
+function injectModal() {
+  const host = document.createElement('div');
+  host.setAttribute(HOST_ATTR, '');
+  // Out of view and out of the a11y tree: the masthead button is the real control.
+  host.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;clip-path:inset(50%)';
+  host.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(host);
+
+  return loadEmbed(host, 'modal').catch((error) => {
+    host.remove();
+    modalTrigger = null;
+    throw error;
   });
 }
 
@@ -109,6 +121,26 @@ function injectEmbed() {
  * embed rather than injecting it again, so the dialog reopens on every click.
  */
 export function openBookingWidget() {
-  if (!pending) pending = injectEmbed();
-  return pending.then((trigger) => trigger.click());
+  if (!modalTrigger) modalTrigger = injectModal();
+  return modalTrigger.then((trigger) => trigger.click());
+}
+
+/* ---- inline ------------------------------------------------------------ */
+
+const mounted = new WeakSet();
+
+/**
+ * Renders the widget as an iframe inside `container`, in the page's own
+ * layout. Safe to call again - the iframe is only built once per container.
+ */
+export function mountInlineBooking(container) {
+  if (!container) return Promise.reject(new Error('No mount element for the inline booking widget.'));
+  if (mounted.has(container)) return Promise.resolve();
+
+  mounted.add(container);
+  return loadEmbed(container, 'inline').catch((error) => {
+    mounted.delete(container);
+    container.replaceChildren();
+    throw error;
+  });
 }

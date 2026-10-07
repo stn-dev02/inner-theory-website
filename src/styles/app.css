@@ -106,6 +106,12 @@
   display: none;
 }
 
+/* The third CTA only appears once the header has room for it alongside the
+   nav - measured, not guessed. */
+.mast__cta--inline {
+  display: none;
+}
+
 .mast__notice {
   background: var(--ink);
   color: var(--text-on-ink);
@@ -134,6 +140,11 @@
 @media (min-width: 64rem) {
   .mast__nav {
     display: flex;
+  }
+
+  /* Measured: three CTAs plus the nav still fit at 1024px without clipping. */
+  .mast__cta--inline {
+    display: inline-flex;
   }
 }
 
@@ -1291,4 +1302,48 @@
 
 .foot__meta a:hover {
   color: var(--beam);
+}
+
+
+/* --- Inline booking widget ---------------------------------------------- */
+
+.inlinebook {
+  background: var(--paper);
+  border-block: 1px solid var(--porcelain-deep);
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+  scroll-margin-top: 5.5rem;
+}
+
+/* An author-level display beats the UA sheet's [hidden] rule, so restate it. */
+.inlinebook[hidden] {
+  display: none;
+}
+
+.inlinebook__label {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.inlinebook__label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mist);
+}
+
+/* The embed inserts its own iframe here and sets its height from the frame. */
+.inlinebook__mount {
+  border: 1px solid var(--porcelain-deep);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--porcelain);
+}
+
+.inlinebook__status {
+  margin-top: 1rem;
+  color: var(--text-muted);
+  font-size: var(--step-small);
 }
