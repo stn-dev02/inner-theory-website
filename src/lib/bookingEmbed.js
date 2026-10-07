@@ -20,16 +20,29 @@
  *      https://example.com and https://www.example.com are different, and so
  *      are localhost and 127.0.0.1 on the same port.
  */
-const DEV_FALLBACK = 'http://localhost:3000/embed.js?token=theory-website';
+const EMBED_URL = 'https://theory-web.vercel.app/embed.js?token=theory-website';
 
 function resolveEmbedSrc() {
+  // Override for pointing at a local booking server: put
+  // VITE_BOOKING_EMBED_URL=http://localhost:3000/embed.js?token=theory-website
+  // in .env.local.
   const configured = import.meta.env.VITE_BOOKING_EMBED_URL;
   if (typeof configured === 'string' && configured.trim()) return configured.trim();
+  return EMBED_URL;
+}
 
-  // The local booking server is a reasonable default while developing. In a
-  // build with nothing configured it is not: a visitor's own machine is not
-  // running it, so the buttons degrade to the consult form instead.
-  return import.meta.env.DEV ? DEV_FALLBACK : '';
+/**
+ * Older builds of the embed only read the token from a data-token attribute;
+ * newer ones also accept it in the script's own query string. Passing both
+ * means the tag works against either, which matters while the booking app and
+ * this site deploy on separate schedules.
+ */
+function tokenFromSrc(src) {
+  try {
+    return new URL(src, window.location.href).searchParams.get('token') || '';
+  } catch {
+    return '';
+  }
 }
 
 const EMBED_SRC = resolveEmbedSrc();
@@ -38,7 +51,7 @@ const HOST_ATTR = 'data-booking-host';
 /** Why the widget cannot run here, or null when it can. */
 function configurationProblem() {
   if (!EMBED_SRC) {
-    return 'VITE_BOOKING_EMBED_URL is not set, so there is no booking widget to load.';
+    return 'No booking embed URL is configured.';
   }
   if (window.location.protocol === 'https:' && EMBED_SRC.startsWith('http://')) {
     return `Refusing to load the booking widget over http from an https page - the browser would block it as mixed content. Set VITE_BOOKING_EMBED_URL to an https URL (currently ${EMBED_SRC}).`;
@@ -65,6 +78,8 @@ function loadEmbed(parent, mode) {
     script.src = EMBED_SRC;
     script.async = true;
     script.setAttribute('data-mode', mode);
+    const token = tokenFromSrc(EMBED_SRC);
+    if (token) script.setAttribute('data-token', token);
     if (mode === 'modal') script.setAttribute('data-label', 'Book now');
 
     const fail = (message) => {
