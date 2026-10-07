@@ -93,6 +93,38 @@
   padding: 0.6rem 1.1rem;
 }
 
+.mast__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The widget button is the live action, so the on-page form is the quieter of
+   the two. Below 46rem only the primary survives - two CTAs plus the wordmark
+   do not fit on a phone. */
+.mast__cta--second {
+  display: none;
+}
+
+.mast__notice {
+  background: var(--ink);
+  color: var(--text-on-ink);
+  font-size: var(--step-small);
+  text-align: center;
+  padding: 0.7rem var(--gutter);
+}
+
+.mast__notice a {
+  color: var(--beam);
+  text-underline-offset: 3px;
+}
+
+@media (min-width: 46rem) {
+  .mast__cta--second {
+    display: inline-flex;
+  }
+}
+
 @media (min-width: 46rem) {
   .mast__kind {
     display: block;
