@@ -48,6 +48,40 @@ const FORM_ENDPOINT = 'https://formspree.io/f/xxxxxxx';
 The payload is `{ name, email, phone, concern, when, notes }`. Success and failure
 states are already handled, and the failure copy falls back to the phone number.
 
+## The Book now button
+
+The masthead "Book now" button loads the external booking widget on first press
+and opens it in a modal. Repeat presses reopen it without loading it again. If
+the widget cannot be reached, the visitor is sent to the consult form on the
+page instead, so the button is never dead.
+
+Set the embed URL per environment - it is deliberately not hardcoded:
+
+```bash
+cp .env.example .env.local        # development
+# then set the same key in your host's env settings for production
+VITE_BOOKING_EMBED_URL=https://booking.example.com/embed.js?token=theory-website
+```
+
+Three things have to line up before it works on a deployed site:
+
+1. **https.** A browser blocks an `http://` script on an `https://` page as
+   mixed content, with no visible error. The code refuses that combination up
+   front and logs why.
+2. **`frame-ancestors`.** The booking server must name your site's origin in
+   its CSP header, or the browser will not frame the widget:
+   `frame-ancestors 'self' https://innertheory.co`. The match is exact -
+   `https://innertheory.co` and `https://www.innertheory.co` are different
+   origins, as are `localhost` and `127.0.0.1` on the same port. Add every
+   origin you actually serve from, including preview deployments.
+3. **The variable is set at build time.** Vite inlines `VITE_` values when it
+   builds, so changing it in your host means triggering a new build, not just a
+   restart.
+
+Left unset in a production build, the button falls back to the consult form
+rather than pointing visitors at a host that is not theirs.
+
+
 ## Replace before launch
 
 These are placeholders:
