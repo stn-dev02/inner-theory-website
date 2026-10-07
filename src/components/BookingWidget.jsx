@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { clinic } from '../content/site.js';
-import { mountInlineBooking } from '../lib/bookingEmbed.js';
+import { mountBookingWidget } from '../lib/bookingEmbed.js';
 
 /**
- * The booking widget rendered in the page rather than over it, revealed by the
- * masthead's inline button.
+ * The booking widget, revealed by the masthead's "Book now" button.
  *
  * The mount div is deliberately left empty in JSX: the embed inserts its iframe
  * there itself, and React must not try to reconcile children it did not create.
  */
-export default function BookingInline({ open }) {
+export default function BookingWidget({ open }) {
   const mountRef = useRef(null);
   const sectionRef = useRef(null);
   const [status, setStatus] = useState('idle');
@@ -25,7 +24,7 @@ export default function BookingInline({ open }) {
 
     if (status !== 'idle') return;
     setStatus('loading');
-    mountInlineBooking(mountRef.current).then(
+    mountBookingWidget(mountRef.current).then(
       () => setStatus('ready'),
       () => setStatus('error')
     );
@@ -33,21 +32,23 @@ export default function BookingInline({ open }) {
 
   return (
     <section
-      id="book-inline"
+      id="book-widget"
       ref={sectionRef}
-      className="inlinebook"
+      className="bookwidget"
       hidden={!open}
       aria-label="Book an appointment"
     >
       <div className="shell">
-        <p className="inlinebook__label t-mono">Book an appointment</p>
+        <p className="bookwidget__label t-mono">Book an appointment</p>
 
-        <div className="inlinebook__mount" ref={mountRef} />
+        <div className="bookwidget__mount" ref={mountRef} />
 
-        {status === 'loading' ? <p className="inlinebook__status">Loading the booking widget…</p> : null}
+        {status === 'loading' ? (
+          <p className="bookwidget__status">Loading the booking widget…</p>
+        ) : null}
 
         {status === 'error' ? (
-          <p className="inlinebook__status" role="alert">
+          <p className="bookwidget__status" role="alert">
             The booking widget is not responding. Use the consult form below, or call{' '}
             <a href={clinic.phoneHref}>{clinic.phone}</a>.
           </p>

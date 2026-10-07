@@ -6,7 +6,7 @@ import Schedule from './components/Schedule.jsx';
 import Clinicians from './components/Clinicians.jsx';
 import Costs from './components/Costs.jsx';
 import Questions from './components/Questions.jsx';
-import BookingInline from './components/BookingInline.jsx';
+import BookingWidget from './components/BookingWidget.jsx';
 import Book from './components/Book.jsx';
 import Footer from './components/Footer.jsx';
 
@@ -50,15 +50,15 @@ function useReveal() {
 export default function App() {
   useReveal();
 
-  // Lifted so the masthead button can reveal the inline widget further down the page.
-  const [inlineOpen, setInlineOpen] = useState(false);
+  // Lifted so the masthead button can reveal the widget further down the page.
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   return (
     <>
       <a className="skip" href="#treatments">
         Skip to treatments
       </a>
-      <Masthead onOpenInline={() => setInlineOpen(true)} />
+      <Masthead onOpenBooking={() => setBookingOpen(true)} />
       <main>
         <Hero />
         <DepthMap />
@@ -66,7 +66,7 @@ export default function App() {
         <Clinicians />
         <Costs />
         <Questions />
-        <BookingInline open={inlineOpen} />
+        <BookingWidget open={bookingOpen} />
         <Book />
       </main>
       <Footer />

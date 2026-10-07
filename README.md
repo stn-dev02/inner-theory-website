@@ -48,51 +48,40 @@ const FORM_ENDPOINT = 'https://formspree.io/f/xxxxxxx';
 The payload is `{ name, email, phone, concern, when, notes }`. Success and failure
 states are already handled, and the failure copy falls back to the phone number.
 
-## The booking buttons
+## The Book now button
 
-The masthead "Book now" button loads the external booking widget on first press
-and opens it in a modal. Repeat presses reopen it without loading it again. If
-the widget cannot be reached, the visitor is sent to the consult form on the
-page instead, so the button is never dead.
+The masthead "Book now" button loads the booking embed on first press and
+renders it in the #book-widget section, then scrolls to it. The embed is used
+exactly as the booking console hands it out:
 
-The same embed supports a second shape, and the masthead offers both:
-
-- **Book now** loads it in `modal` mode and opens it over the page. The embed
-  has no public `open()`, so the script is loaded into an off-screen host and
-  the button clicks the trigger the embed builds for itself.
-- **Book inline** loads it in `inline` mode into the `#book-inline` section,
-  where the embed inserts its iframe into the page's own layout. Shown from
-  64rem up - measured, since three CTAs plus the nav are what fits at 1024px.
-
-Each mode loads at most once per page view, and both fall back to the consult
-form if the widget cannot be reached.
-
-Set the embed URL per environment - it is deliberately not hardcoded:
-
-```bash
-cp .env.example .env.local        # development
-# then set the same key in your host's env settings for production
-VITE_BOOKING_EMBED_URL=https://booking.example.com/embed.js?token=theory-website
+```html
+<script src="https://theory-web.vercel.app/embed.js"
+        data-token="theory-website" async></script>
 ```
 
-Three things have to line up before it works on a deployed site:
+With no `data-mode` on the tag the embed renders inline - it inserts its iframe
+after its own script tag - so the script is appended to a mount element inside
+that section. It loads at most once per page view, and falls back to the consult
+form if it cannot be reached.
 
-1. **https.** A browser blocks an `http://` script on an `https://` page as
-   mixed content, with no visible error. The code refuses that combination up
-   front and logs why.
-2. **`frame-ancestors`.** The booking server must name your site's origin in
-   its CSP header, or the browser will not frame the widget:
-   `frame-ancestors 'self' https://innertheory.co`. The match is exact -
-   `https://innertheory.co` and `https://www.innertheory.co` are different
-   origins, as are `localhost` and `127.0.0.1` on the same port. Add every
-   origin you actually serve from, including preview deployments.
-3. **The variable is set at build time.** Vite inlines `VITE_` values when it
-   builds, so changing it in your host means triggering a new build, not just a
-   restart.
+To point at a local booking server while developing, put the override in
+`.env.local` (see `.env.example`):
 
-Left unset in a production build, the button falls back to the consult form
-rather than pointing visitors at a host that is not theirs.
+```bash
+VITE_BOOKING_EMBED_URL=http://localhost:3000/embed.js
+```
 
+Two things have to line up on the booking server before the widget renders from
+a deployed site:
+
+1. **The embed's own `origin`.** The build currently at theory-web.vercel.app
+   has `var origin = "http://localhost:3000"` compiled in, so it builds an
+   iframe pointing at the visitor's own machine. It needs to derive the origin
+   from the script's `src`.
+2. **`frame-ancestors`.** The booking page must name this site's origin in its
+   CSP header, or the browser refuses to frame it. The match is exact -
+   `innertheory.co` and `www.innertheory.co` are different origins, as are
+   `localhost` and `127.0.0.1` on the same port.
 
 ## Replace before launch
 

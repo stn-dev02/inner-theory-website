@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { clinic, nav } from '../content/site.js';
-import { openBookingWidget } from '../lib/bookingEmbed.js';
 
-export default function Masthead({ onOpenInline }) {
+export default function Masthead({ onOpenBooking }) {
   const [isStuck, setIsStuck] = useState(false);
   const [active, setActive] = useState('');
-  const [embed, setEmbed] = useState('idle'); // idle | loading | ready | error
 
   useEffect(() => {
     const onScroll = () => setIsStuck(window.scrollY > 24);
@@ -36,24 +34,6 @@ export default function Masthead({ onOpenInline }) {
     return () => observer.disconnect();
   }, []);
 
-  /**
-   * Loads the booking widget on first press, then opens it - and reopens it on
-   * every press after that. If it cannot be reached the visitor still lands
-   * somewhere useful, the consult form, rather than on a button that silently
-   * does nothing.
-   */
-  async function handleBookNow() {
-    if (embed === 'loading') return;
-    setEmbed('loading');
-    try {
-      await openBookingWidget();
-      setEmbed('ready');
-    } catch {
-      setEmbed('error');
-      document.getElementById('book')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-
   return (
     <header className={`mast${isStuck ? ' is-stuck' : ''}`}>
       <div className="shell mast__inner">
@@ -80,31 +60,11 @@ export default function Masthead({ onOpenInline }) {
             Book a consult
           </a>
 
-          <button
-            type="button"
-            className="btn btn--ghost mast__cta mast__cta--inline"
-            onClick={onOpenInline}
-          >
-            Book inline
-          </button>
-
-          <button
-            type="button"
-            className="btn btn--solid mast__cta"
-            onClick={handleBookNow}
-            aria-busy={embed === 'loading'}
-          >
-            {embed === 'loading' ? 'Opening…' : 'Book now'}
+          <button type="button" className="btn btn--solid mast__cta" onClick={onOpenBooking}>
+            Book now
           </button>
         </div>
       </div>
-
-      {embed === 'error' ? (
-        <p className="mast__notice" role="alert">
-          The booking widget is not responding. Use the consult form below, or call{' '}
-          <a href={clinic.phoneHref}>{clinic.phone}</a>.
-        </p>
-      ) : null}
     </header>
   );
 }
