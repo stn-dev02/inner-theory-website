@@ -455,16 +455,10 @@ export const book = {
   body:
     'Sixty minutes, $95, credited to your first treatment. You leave with a written plan whether ' +
     'or not you book anything else.',
-  concernOptions: [
-    'Fine lines',
-    'Texture & pores',
-    'Laxity',
-    'Pigment & sun damage',
-    'Acne or scarring',
-    'Low energy / labs',
-    'Not sure yet',
-  ],
-  timeOptions: ['Weekday morning', 'Weekday afternoon', 'Weekday evening', 'Saturday'],
+  cta: 'Request a consult',
+  note:
+    'A request is not a booking. We reply within one working day to confirm a time, and nothing ' +
+    'is charged until you are in the chair.',
 };
 
 export const footer = {

@@ -26,27 +26,30 @@ Edit that file, not the components. Each export maps to one section of the page:
 | `clinicians` | Staff                                        |
 | `costs`      | Price table and the membership card          |
 | `questions`  | FAQ                                          |
-| `book`       | Form dropdown options                        |
+| `book`       | Consult button label and the note under it   |
 | `footer`     | Medical disclaimer                           |
 
 Adding a treatment means adding an object to the right `depthMap.layers[].treatments`
 array — the depth axis, the layer counts, and the panels all follow from the data.
 
-## The booking form
+## The consult request
 
-No backend ships with this site. `FORM_ENDPOINT` at the top of
-`src/components/Book.jsx` is empty, so the form currently opens the visitor's mail
-client with the request filled in — usable on day one, but not a real pipeline.
+The Book section's **Request a consult** button opens the lead form hosted on the
+booking server, in a dialog. The form is the server's own page in an iframe, so
+submissions go straight to it - there is no form or endpoint in this repo.
 
-To wire it up properly, set `FORM_ENDPOINT` to any URL that accepts a JSON `POST`
-(Formspree, a serverless function, your booking system's intake API):
+`src/components/Book.jsx` injects the issued embed script into the dialog on
+first open; it builds the iframe, sizes it to the form, and passes the page URL
+through for attribution:
 
-```js
-const FORM_ENDPOINT = 'https://formspree.io/f/xxxxxxx';
+```html
+<script src="https://theory-web.vercel.app/embed.js?lead=ARKZbBKwaesjhA" async></script>
 ```
 
-The payload is `{ name, email, phone, concern, when, notes }`. Success and failure
-states are already handled, and the failure copy falls back to the phone number.
+To switch forms, change `CONTACT_EMBED_SRC` at the top of that file. If the
+script cannot be reached, the dialog shows the clinic phone and email instead.
+Like the booking widget, the form only renders if the booking server lists this
+site's origin in its `frame-ancestors` header (see below).
 
 ## The Book now button
 
